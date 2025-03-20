@@ -10,7 +10,6 @@ const { updateNodeData } = useReactFlow();
     handleType: 'target',
   });
   const nodesData = useNodesData<Node>(connections[0]?.source)?.data || null;
-  // const historicalDataPlotNode = isHistoricalDataPlotNode(nodesData) ? nodesData : null;
   // console.log(historicalDataPlotNode)
 
   let average = 0  
