@@ -1,5 +1,9 @@
-import { type Node, 
+import {
     NodeData } from '@/lib/workflowExecutor';
+    import { Handle, Position, useNodeConnections, useNodesData, useReactFlow, 
+  type NodeProps,
+  type Node,} from '@xyflow/react';
+
 import { useState,
 useCallback, 
 useEffect} from 'react';
