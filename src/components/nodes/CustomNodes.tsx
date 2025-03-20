@@ -1,7 +1,9 @@
+import { getResult } from '@/lib/convertToReactFlow';
 import { Handle, Position, useNodeConnections, useNodesData, useReactFlow, 
   type NodeProps,
   type Node,} from '@xyflow/react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
 
 export const baseNodeStyles = "px-4 py-2 rounded-lg text-sm font-medium";
 
@@ -17,14 +19,41 @@ export function UserInputNode({ data }: { data: { label: string } }) {
   );
 }
 
-export function AIAgentNode({ data }: { data: { label: string } }) {
+export function AIAgentNode({ data }: { data: { label: string, tool: any },  }) {
+  let tool = data.tool;
+
+  const [label, setLabel] = useState(data.label);
+
+  useEffect(() => {
+    const a = async() => {
+      // Initialize with data.label
+      setLabel(data.label);
+      
+      // Test feature: change label after 10 seconds
+      const res = await getResult(tool)
+      setLabel(res.data.label);
+      // Process tool if available
+      console.log("Processing tool promise:", res);
+    }
+    a()
+      
+  }, [tool, data.label]); // Add data.label as a dependency
+
   return (
-    <div className={`${baseNodeStyles} bg-purple-500/20 border border-purple-500/50`}>
+    <div className={`${baseNodeStyles} bg-purple-500/20 border border-purple-500/50 w-100`}>
       <Handle type="target" position={Position.Left} />
       <Handle type="source" position={Position.Right} />
-      <div className="flex items-center gap-2">
-        <span>🤖</span>
-        {data.label}
+      <div className="flex items-start gap-2">
+        <span className="mt-0.5 flex-shrink-0">🤖</span>
+        <div className="whitespace-pre-wrap max-h-48 overflow-y-auto overflow-x-hidden w-full">
+          {label.includes('```') || label.includes('#') || label.includes('*') ? (
+            <ReactMarkdown>
+              {label}
+            </ReactMarkdown>
+          ) : (
+            label
+          )}
+        </div>
       </div>
     </div>
   );
