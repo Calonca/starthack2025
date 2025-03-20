@@ -19,6 +19,8 @@ import {
   HistoricalDataPlotNode,
   CalculateAverageNode
 } from './nodes/CustomNodes';
+import { NodeModal } from './NodeModal';
+import { WorkflowExecutor } from '@/lib/workflowExecutor';
 
 type WorkflowDetailProps = {
   workflow: Workflow;
@@ -190,6 +192,10 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}
+
+              onNodeClick={onNodeClick}
+              onNodeDragStop={onNodeDragStop}
+
               fitView
               nodeTypes={nodeTypes}
               defaultEdgeOptions={{ type: 'smoothstep' }}
