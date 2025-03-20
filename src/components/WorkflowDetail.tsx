@@ -63,7 +63,7 @@ const initialEdges: Edge[] = [
 ];
 
 export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
-  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
  
   const onConnect: OnConnect = useCallback(
@@ -71,16 +71,88 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
     [setEdges],
   );
 
+  const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+
+  const updateNode = useCallback((nodeId: string, data: Partial<NodeData>) => {
+    setNodes(nds =>
+      nds.map(n =>
+        n.id === nodeId
+          ? { ...n, data: { ...n.data, ...data } }
+          : n
+      )
+    );
+  }, []);
+
+  const executeWorkflow = useCallback(async () => {
+    if (isExecuting) return;
+
+    setIsExecuting(true);
+    try {
+      const executor = new WorkflowExecutor(nodes, edges, updateNode);
+      await executor.execute();
+    } catch (error) {
+      console.error('Workflow execution failed:', error);
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [nodes, edges, updateNode, isExecuting]);
+
+  const onNodeClick = useCallback(async (event: React.MouseEvent, node: Node<NodeData>) => {
+    setSelectedNode(node);
+
+    // Process node when clicked
+    try {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id ? { ...n, data: { ...n.data, status: 'processing' } } : n
+        )
+      );
+
+      const result = await processNode(node);
+
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id
+            ? { ...n, data: { ...n.data, status: 'completed', result } }
+            : n
+        )
+      );
+    } catch (error) {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id
+            ? { ...n, data: { ...n.data, status: 'error' } }
+            : n
+        )
+      );
+    }
+  }, []);
+
+  const onNodeDragStop = useCallback(
+    (event: React.MouseEvent, node: Node<NodeData>, nodes: Node<NodeData>[]) => {
+      setNodes(nodes);
+    },
+    []
+  );
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start ml-8 mr-8">
         <div>
           <h1 className="text-2xl font-bold mb-2">{workflow.name}</h1>
           <p className="text-gray-400">{workflow.description}</p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg">
-            Run Workflow
+          <button
+            className={`px-4 py-2 rounded-lg ${isExecuting
+              ? 'bg-purple-600/50 cursor-not-allowed'
+              : 'bg-purple-600 hover:bg-purple-700'
+              }`}
+            onClick={executeWorkflow}
+            disabled={isExecuting}
+          >
+            {isExecuting ? 'Running...' : 'Run Workflow'}
           </button>
           <button className="px-4 py-2 bg-[#2a2b36] hover:bg-[#32333e] rounded-lg">
             Edit
@@ -93,8 +165,8 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
           <div className="text-sm text-gray-400 mb-2">Status</div>
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${workflow.status === 'active' ? 'bg-green-400' :
-                workflow.status === 'scheduled' ? 'bg-yellow-400' :
-                  'bg-gray-400'
+              workflow.status === 'scheduled' ? 'bg-yellow-400' :
+                'bg-gray-400'
               }`} />
             <span className="capitalize">{workflow.status}</span>
           </div>
@@ -146,8 +218,8 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
                 >
                   <div
                     className={`max-w-[80%] rounded-lg p-4 ${message.role === 'user'
-                        ? 'bg-purple-600/20 text-purple-200'
-                        : 'bg-[#1a1b23] text-gray-300'
+                      ? 'bg-purple-600/20 text-purple-200'
+                      : 'bg-[#1a1b23] text-gray-300'
                       }`}
                   >
                     <div className="mb-1">{message.content}</div>
@@ -194,6 +266,13 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
           </div>
         </div>
       </div>
+
+      {selectedNode && (
+        <NodeModal
+          node={selectedNode}
+          onClose={() => setSelectedNode(null)}
+        />
+      )}
     </div>
   );
 } 

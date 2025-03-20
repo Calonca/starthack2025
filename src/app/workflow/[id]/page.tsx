@@ -1,6 +1,5 @@
 'use client';
 
-import { Navbar } from '@/components/Navbar';
 import { Sidebar } from '@/components/Sidebar';
 import { WorkflowDetail } from '@/components/WorkflowDetail';
 import { initialWorkflows } from '@/data/workflows';
@@ -16,10 +15,8 @@ export default function WorkflowPage() {
 
   return (
     <div className="min-h-screen bg-[#1a1b23] text-white">
-      <Sidebar />
-      <div className="ml-64">
-        <Navbar />
-        <main className="p-8">
+      <div className="">
+        <main className="p-4">
           <WorkflowDetail workflow={workflow} />
         </main>
       </div>
