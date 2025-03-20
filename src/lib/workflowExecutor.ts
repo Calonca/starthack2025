@@ -6,6 +6,7 @@ export type NodeData = {
   type: string;
   status?: 'idle' | 'processing' | 'completed' | 'error';
   result?: any;
+  [key: string]: unknown;
 };
 
 export class WorkflowExecutor {
@@ -53,7 +54,7 @@ export class WorkflowExecutor {
     });
 
     // Find start nodes (nodes with no incoming edges)
-    const startNodes = this.nodes.filter(node => 
+    const startNodes = this.nodes.filter(node =>
       !this.edges.some(edge => edge.target === node.id)
     );
 

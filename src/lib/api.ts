@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { Node } from '@xyflow/react';
-
+import { NodeData } from './workflowExecutor';
 const BASE_URL = 'https://idchat-api-containerapp01-dev.orangepebble-16234c4b.switzerlandnorth.azurecontainerapps.io/';
 
 export interface FlowNode {
@@ -37,13 +37,6 @@ interface ApiResponse {
   messages?: Message[];
   content?: string;
   object?: any;
-}
-
-export interface NodeData {
-  label: string;
-  type: string;
-  status?: 'idle' | 'processing' | 'completed' | 'error';
-  result?: any;
 }
 
 // Add new response type definitions

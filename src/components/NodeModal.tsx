@@ -1,5 +1,5 @@
 import { Node } from '@xyflow/react';
-import { NodeData } from './WorkflowDetail';
+import { NodeData } from '@/lib/workflowExecutor';
 
 interface NodeModalProps {
     node: Node<NodeData>;
@@ -136,8 +136,8 @@ function DataRetrievalContent({ node }: { node: Node<NodeData> }) {
     );
 }
 
-function ExecutionHistorySection({ nodeType }: { nodeType: string }) {
-    const history = mockExecutionHistory[nodeType] || [];
+function ExecutionHistorySection({ nodeType }: { nodeType: string | undefined }) {
+    const history = nodeType ? mockExecutionHistory[nodeType] || [] : [];
 
     return (
         <div className="bg-[#2a2b36] p-4 rounded-lg">
@@ -158,8 +158,8 @@ function ExecutionHistorySection({ nodeType }: { nodeType: string }) {
                                 </div>
                             </div>
                             <span className={`px-2 py-1 rounded-full text-xs ${execution.status === 'success'
-                                    ? 'bg-green-500/20 text-green-400'
-                                    : 'bg-red-500/20 text-red-400'
+                                ? 'bg-green-500/20 text-green-400'
+                                : 'bg-red-500/20 text-red-400'
                                 }`}>
                                 {execution.status}
                             </span>
@@ -175,6 +175,8 @@ function ExecutionHistorySection({ nodeType }: { nodeType: string }) {
 }
 
 export function NodeModal({ node, onClose }: NodeModalProps) {
+    const nodeType = node.type || 'unknown';
+
     const renderContent = () => {
         switch (node.type) {
             case 'user_input':
@@ -227,7 +229,7 @@ export function NodeModal({ node, onClose }: NodeModalProps) {
                     {renderContent()}
 
                     {/* Execution History */}
-                    <ExecutionHistorySection nodeType={node.type} />
+                    <ExecutionHistorySection nodeType={nodeType} />
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3">
