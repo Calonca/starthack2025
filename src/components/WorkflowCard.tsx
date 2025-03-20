@@ -1,12 +1,13 @@
 'use client'
 import { Workflow } from '@/types/workflow';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 type WorkflowCardProps = {
   workflow: Workflow;
 };
 
-export function WorkflowCard({ workflow }: WorkflowCardProps) {
+export function WorkflowCard({ workflow, shareWorkflow }: WorkflowCardProps) {
   const router = useRouter();
 
   return (
@@ -50,7 +51,10 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
         >
           View Details
         </button>
-        <button className="text-gray-400 hover:text-white px-4 py-2">
+        <button className="text-gray-400 hover:text-white px-4 py-2"
+        onClick={() => {
+          shareWorkflow(workflow)
+        }}>
           Share
         </button>
       </div>
