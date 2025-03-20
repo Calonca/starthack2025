@@ -24,6 +24,7 @@ import { NodeModal } from './NodeModal';
 import { WorkflowExecutor } from '@/lib/workflowExecutor';
 import { CandleChartNode } from './nodes/CandleChartNode';
 import { WorkflowPromptChat } from './WorkflowPromptChat';
+import { RiskAssessmentNode } from './nodes/RiskAssessmentNode';
 
 type WorkflowDetailProps = {
   workflow: Workflow;
@@ -38,7 +39,8 @@ const nodeTypes = {
   action: ActionNode,
   historical_data: HistoricalDataPlotNode,
   average_node: CalculateAverageNode,
-  candle_chart_node: CandleChartNode
+  candle_chart_node: CandleChartNode,
+  risk_assessment_node: RiskAssessmentNode,
 };
 
 const STOCK_PRICES = {
@@ -52,7 +54,8 @@ const initialNodes: Node[] = [
 "2025-03-20T00:00:00.000":{"open":6.5,"high":6.595,"low":6.488,"close":6.561,"vol":31123749,"Total return":"54.29%","Anualized return":"7.23%","Max":6.595,"Min":1.4396904312}}
 }, position: {x: 0, y: -100}},
   { id: "2", type: "average_node", data: {prices: {}}, position: {x: 300, y: 0}},
-  { id: "3", type: "candle_chart_node", data: {}, position: {x: 300, y: 100}},
+  { id: "3", type: "risk_assessment_node", data: {}, position: {x: 300, y: 100}},
+  { id: "5", type: "candle_chart_node", data: {}, position: {x: 300, y: 200}},
   /*
   { id: "1", type: "user_input", data: { label: "User Query" }, position: { x: 100, y: 0 } },
   { id: "2", type: "ai_agent", data: { label: "AI Assistant" }, position: { x: 300, y: 0 } },
@@ -223,7 +226,7 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
               onConnect={onConnect}
 
               onNodeClick={onNodeClick}
-              onNodeDragStop={onNodeDragStop}
+              /*onNodeDragStop={onNodeDragStop}*/
 
               fitView
               nodeTypes={nodeTypes}
