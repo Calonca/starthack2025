@@ -39,7 +39,7 @@ export function RiskAssessmentNode({ data }) {
 
   return (
     <div className={`${baseNodeStyles} bg-blue-500/20 border ${borderColor}`}>
-      <Handle type="target" position={Position.Left} />
+      <Handle type="target" position={Position.Top} style={{ width: '10px', height: '10px' }}/>
       <div className="flex items-center gap-2">
         <span>{emoticon}</span>
         {rating}
