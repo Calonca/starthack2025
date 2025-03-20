@@ -1,6 +1,13 @@
-import { ReactFlow, Background, Controls, Node, Edge } from '@xyflow/react';
+import { ReactFlow, Background, Controls, Node, 
+  type Edge,
+  type OnConnect,
+  useNodesState,
+  useEdgesState,
+    addEdge,
+} from '@xyflow/react';
 import { Workflow } from '@/types/workflow';
-import { useState } from 'react';
+import { useState,
+useCallback } from 'react';
 import '@xyflow/react/dist/style.css';
 import {
   UserInputNode,
@@ -46,7 +53,7 @@ const initialNodes: Node[] = [
 ];
 
 const initialEdges: Edge[] = [
-  { id: "e1-2", source: "1", target: "2", type: 'smoothstep' },
+  //{ id: "e1-2", source: "1", target: "2", type: 'smoothstep' },
   /*
   { id: "e2-3", source: "2", target: "3", type: 'smoothstep' },
   { id: "e3-4", source: "3", target: "4", type: 'smoothstep' },
@@ -56,8 +63,13 @@ const initialEdges: Edge[] = [
 ];
 
 export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
-  const [nodes] = useState(initialNodes);
-  const [edges] = useState(initialEdges);
+  const [nodes, , onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+ 
+  const onConnect: OnConnect = useCallback(
+    (connection) => setEdges((eds) => addEdge(connection, eds)),
+    [setEdges],
+  );
 
   return (
     <div className="space-y-6">
@@ -103,6 +115,9 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
             <ReactFlow
               nodes={nodes}
               edges={edges}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
               fitView
               nodeTypes={nodeTypes}
               defaultEdgeOptions={{ type: 'smoothstep' }}
