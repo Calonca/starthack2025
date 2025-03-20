@@ -9,7 +9,7 @@ export const initialWorkflows: Workflow[] = [
     progress: 75,
     lastRun: '2h ago',
     assignee: 'AI Assistant',
-    prompt: 'Create a workflow that analyzes Bitcoin price movements and generates trading signals',
+    prompt: 'Analyzes Bitcoin price movements and generates trading signals',
     chatHistory: [
       {
         id: '1',
