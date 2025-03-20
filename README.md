@@ -1,36 +1,179 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Workflow Builder
+
+A Next.js application for building and managing AI-powered financial analysis workflows.
+
+## Features
+
+- 🤖 AI-powered workflow generation
+- 📊 Interactive workflow visualization
+- 💬 Real-time chat interface
+- 📈 Financial data integration
+- 🔄 Automated workflow execution
+
+## Tech Stack
+
+- **Framework**: Next.js 14 with App Router
+- **Styling**: Tailwind CSS
+- **Visualization**: React Flow
+- **API Integration**: Axios
+- **Type Safety**: TypeScript
+
+## Project Structure
+
+```
+src/
+├── app/                    # Next.js app router pages
+│   ├── page.tsx           # Dashboard page
+│   └── workflows/         # Workflow-related pages
+│       └── create/        # Workflow creation page
+├── components/            # React components
+│   ├── NodeModal.tsx      # Node details modal
+│   ├── WorkflowCard.tsx   # Workflow card component
+│   ├── WorkflowDetail.tsx # Workflow details view
+│   └── WorkflowGraph.tsx  # Flow visualization
+├── lib/                   # Utility functions and API
+│   ├── api.ts            # API client
+│   ├── automationLLM.ts  # LLM integration
+│   ├── parseAPI.ts       # API response parsing
+│   └── workflowExecutor.ts # Workflow execution logic
+└── types/                 # TypeScript type definitions
+    ├── api.ts            # API types
+    └── workflow.ts       # Workflow types
+```
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/ai-workflow-builder.git
+```
+
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Create a `.env.local` file with required environment variables:
+
+```env
+NEXT_PUBLIC_API_URL=your_api_url
+```
+
+4. Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Development
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Key Components
 
-## Learn More
+- **WorkflowGraph**: Handles the visual representation of workflows using React Flow
+- **NodeModal**: Displays detailed information about workflow nodes
+- **WorkflowExecutor**: Manages the execution of workflow nodes
+- **API Client**: Handles communication with the backend services
 
-To learn more about Next.js, take a look at the following resources:
+### Type System
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+The project uses TypeScript for type safety. Key types include:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```typescript
+// Workflow Types
+interface Workflow {
+  id: string;
+  name: string;
+  description: string;
+  status: "active" | "scheduled" | "completed" | "error";
+  lastRun: string;
+  assignee: string;
+  prompt: string;
+  chatHistory: ChatMessage[];
+  progress?: number;
+}
 
-## Deploy on Vercel
+// Node Types
+type NodeData = {
+  label: string;
+  type: string;
+  status?: "idle" | "processing" | "completed" | "error";
+  result?: Record<string, unknown>;
+  [key: string]: unknown;
+};
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### API Integration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+The application integrates with a financial data API for:
+
+- Historical price data
+- Company information
+- Market analysis
+- LLM-powered insights
+
+### Styling
+
+- Uses Tailwind CSS for styling
+- Dark theme optimized for financial data visualization
+- Responsive design for all screen sizes
+
+### API Endpoints
+
+```typescript
+const BASE_URL =
+  "https://idchat-api-containerapp01-dev.orangepebble-16234c4b.switzerlandnorth.azurecontainerapps.io/";
+
+// Available endpoints:
+-POST / query - // General query endpoint
+  POST / searchwithcriteria - // Search with specific criteria
+  POST / ohlcv - // Historical price data
+  POST / companydatasearch - // Company information
+  POST / summary - // Data summaries
+  POST / llm; // LLM interactions
+```
+
+### Workflow Execution
+
+The workflow executor handles:
+
+- Sequential node execution
+- Status management
+- Error handling
+- Data flow between nodes
+
+```typescript
+class WorkflowExecutor {
+  // Execute entire workflow
+  public async execute(): Promise<void>;
+
+  // Execute single node
+  private async executeNode(node: Node<NodeData>): Promise<void>;
+
+  // Get next nodes in workflow
+  private getNextNodes(nodeId: string): Node<NodeData>[];
+}
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Open a Pull Request
+
+## Troubleshooting
+
+Common issues:
+
+- **Build Errors**: Run `npm run build` to check for type errors
+- **API Connection**: Verify your `.env.local` configuration
+- **Node Version**: Use Node.js 18+ for best compatibility
+
+## License
+
+MIT License - see LICENSE file for details
