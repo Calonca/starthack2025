@@ -1,16 +1,36 @@
 import { type Node, 
     NodeData } from '@/lib/workflowExecutor';
 import { useState,
-useCallback } from 'react';
+useCallback, 
+useEffect} from 'react';
 import ReactApexChart from 'react-apexcharts';
-import 'dayjs/locale/es'
+import dayjs from 'dayjs'
+
+interface chartType { x: Date; y: number[]; }
+function convertMarketData(data) {
+  const result = [];
+  for (const dateString in data) {
+    if (data.hasOwnProperty(dateString)) {
+      const entry = data[dateString];
+      result.push({
+        x: new Date(dateString),
+        y: [entry.open, entry.high, entry.low, entry.close]
+      });
+    }
+  }
+  return result;
+}
 
 export const CandleChartModal = ({ node }: { node: Node<NodeData> }) => {
+    
+    console.log(JSON.stringify(node.data.prices))
+
         const [state, setState] = useState({
           
             series: [{
               name: 'candle',
               data: [
+                /*
                 {
                   x: new Date(1538778600000),
                   y: [6629.81, 6650.5, 6623.04, 6633.33]
@@ -251,6 +271,7 @@ export const CandleChartModal = ({ node }: { node: Node<NodeData> }) => {
                   x: new Date(1538884800000),
                   y: [6604.98, 6606, 6604.07, 6606]
                 },
+                */
               ]
             }],
             options: {
@@ -271,7 +292,7 @@ export const CandleChartModal = ({ node }: { node: Node<NodeData> }) => {
                       borderColor: '#00E396',
                       style: {
                         fontSize: '12px',
-                        color: '#fff',
+                        color: '#000',
                         background: '#00E396'
                       },
                       orientation: 'horizontal',
@@ -282,7 +303,7 @@ export const CandleChartModal = ({ node }: { node: Node<NodeData> }) => {
                 ]
               },
               tooltip: {
-                enabled: true,
+                enabled: false, // TODO: dark mode for this
               },
               xaxis: {
                 type: 'category',
@@ -302,6 +323,23 @@ export const CandleChartModal = ({ node }: { node: Node<NodeData> }) => {
           
           
         });
+
+        useEffect(() => {
+            const convertedPrices = convertMarketData(node.data.prices)
+            console.log(convertedPrices)
+            setState({
+                ...state,
+                series: [{
+                    name: 'candle',
+                    data: convertedPrices
+                }]
+            })
+
+            setTimeout(() => {
+                console.log(state)
+            }, 1000)
+        }, [])
+
 
         
 
