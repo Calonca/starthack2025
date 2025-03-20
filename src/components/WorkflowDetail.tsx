@@ -24,6 +24,9 @@ import { NodeModal } from './NodeModal';
 import { WorkflowExecutor } from '@/lib/workflowExecutor';
 import { level0graph } from '@/lib/convertToReactFlow';
 import { notDeepStrictEqual } from 'assert';
+import { CandleChartNode } from './nodes/CandleChartNode';
+import { WorkflowPromptChat } from './WorkflowPromptChat';
+import { RiskAssessmentNode } from './nodes/RiskAssessmentNode';
 
 type WorkflowDetailProps = {
   workflow: Workflow;
@@ -37,7 +40,9 @@ const nodeTypes = {
   visualization: VisualizationNode,
   action: ActionNode,
   historical_data: HistoricalDataPlotNode,
-  average_node: CalculateAverageNode
+  average_node: CalculateAverageNode,
+  candle_chart_node: CandleChartNode,
+  risk_assessment_node: RiskAssessmentNode,
 };
 
 const STOCK_PRICES = {
@@ -57,9 +62,39 @@ const STOCK_PRICES = {
 //   */
 // ];
 
-const initialNodes: Node[] = [];
+const initialNodes: Node[] = [
+  { id: "1", type: "historical_data", data: {name: "NVDA", prices: STOCK_PRICES}, position: {x: 0, y: 0}},
+  { id: "4", type: "historical_data", data: {name: "Test2", prices: {
+    "2025-03-19T00:00:00.000":{"open":6.5,"high":6.595,"low":6.488,"close":6.561,"vol":31123749,"Total return":"54.29%","Anualized return":"7.23%","Max":6.595,"Min":1.4396904312},
+"2025-03-20T00:00:00.000":{"open":6.5,"high":6.595,"low":6.488,"close":6.561,"vol":31123749,"Total return":"54.29%","Anualized return":"7.23%","Max":6.595,"Min":1.4396904312}}
+}, position: {x: 0, y: -100}},
+  { id: "2", type: "average_node", data: {prices: {}}, position: {x: 300, y: 0}},
+  { id: "3", type: "risk_assessment_node", data: {}, position: {x: 300, y: 100}},
+  { id: "5", type: "candle_chart_node", data: {}, position: {x: 300, y: 200}},
+  /*
+  { id: "1", type: "user_input", data: { label: "User Query" }, position: { x: 100, y: 0 } },
+  { id: "2", type: "ai_agent", data: { label: "AI Assistant" }, position: { x: 300, y: 0 } },
+  { id: "3", type: "data_retrieval", data: { label: "Financial Data API" }, position: { x: 500, y: -50 } },
+  { id: "4", type: "analysis", data: { label: "Data Analysis" }, position: { x: 700, y: 0 } },
+  { id: "5", type: "visualization", data: { label: "Generate Report" }, position: { x: 900, y: 0 } },
+  { id: "6", type: "action", data: { label: "Send Report" }, position: { x: 1100, y: 0 } },
+  */
+];
+// const initialNodes: Node[] = [
+//   { id: "1", type: "historical_data", data: {name: "Hey", prices: STOCK_PRICES}, position: {x: 0, y: 0}},
+//   { id: "2", type: "average_node", data: {prices: {}}, position: {x: 300, y: 0}},
+//   /*
+//   { id: "1", type: "user_input", data: { label: "User Query" }, position: { x: 100, y: 0 } },
+//   { id: "2", type: "ai_agent", data: { label: "AI Assistant" }, position: { x: 300, y: 0 } },
+//   { id: "3", type: "data_retrieval", data: { label: "Financial Data API" }, position: { x: 500, y: -50 } },
+//   { id: "4", type: "analysis", data: { label: "Data Analysis" }, position: { x: 700, y: 0 } },
+//   { id: "5", type: "visualization", data: { label: "Generate Report" }, position: { x: 900, y: 0 } },
+//   { id: "6", type: "action", data: { label: "Send Report" }, position: { x: 1100, y: 0 } },
+//   */
+// ];
 
 const initialEdges: Edge[] = [
+  { id: "e1-3", source: "1", target: "3", type: "smoothstep"},
   //{ id: "e1-2", source: "1", target: "2", type: 'smoothstep' },
   /*
   { id: "e2-3", source: "2", target: "3", type: 'smoothstep' },
@@ -79,6 +114,7 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
   );
 
   const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
+  
   const [isExecuting, setIsExecuting] = useState(false);
 
   const updateNode = useCallback((nodeId: string, data: Partial<NodeData>) => {
@@ -107,6 +143,7 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
 
   const onNodeClick = useCallback(async (event: React.MouseEvent, node: Node<NodeData>) => {
     setSelectedNode(node);
+    console.log(node)
 
     // Process node when clicked
     try {
@@ -142,6 +179,23 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
     },
     []
   );
+
+  // Initialize chatHistory state
+  const [chatHistory, setChatHistory] = useState([]);
+
+  // Function to add a new message to chatHistory
+  const addMessageToChatHistory = (messageContent) => {
+    // Create a new message object
+    const newMessage = {
+      sent: true, // Assuming 'true' indicates a sent message
+      message: messageContent,
+    };
+
+    // Update the chatHistory state
+    setChatHistory((prevChatHistory) => [...prevChatHistory, newMessage]);
+
+    // TODO: call the large language model here
+  };
 
   // Alessandro code here
   useEffect(() => {
@@ -211,7 +265,7 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
               onConnect={onConnect}
 
               onNodeClick={onNodeClick}
-              onNodeDragStop={onNodeDragStop}
+              /*onNodeDragStop={onNodeDragStop}*/
 
               fitView
               nodeTypes={nodeTypes}
@@ -224,10 +278,10 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
 
           {/* Prompt Section */}
           <div className="bg-[#2a2b36] p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Workflow Prompt</h3>
-            <div className="bg-[#1a1b23] p-4 rounded-lg text-gray-300">
-              {workflow.prompt}
-            </div>
+            <WorkflowPromptChat
+              chatHistory={chatHistory}
+              inputTextCallback={addMessageToChatHistory}
+            />
           </div>
 
           {/* Chat History */}

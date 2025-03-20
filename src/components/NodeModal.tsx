@@ -1,5 +1,6 @@
 import { Node } from '@xyflow/react';
 import { NodeData } from '@/lib/workflowExecutor';
+import { CandleChartModal } from './modals/CandleChartModal';
 
 interface NodeModalProps {
     node: Node<NodeData>;
@@ -185,6 +186,8 @@ export function NodeModal({ node, onClose }: NodeModalProps) {
                 return <AIAgentContent node={node} />;
             case 'data_retrieval':
                 return <DataRetrievalContent node={node} />;
+            case 'candle_chart_node':
+                return <CandleChartModal node={node} />
             default:
                 return (
                     <pre className="bg-[#2a2b36] p-4 rounded-lg overflow-auto">

@@ -3,7 +3,7 @@ import { Handle, Position, useNodeConnections, useNodesData, useReactFlow,
   type Node,} from '@xyflow/react';
 import { useEffect } from 'react';
 
-const baseNodeStyles = "px-4 py-2 rounded-lg text-sm font-medium";
+export const baseNodeStyles = "px-4 py-2 rounded-lg text-sm font-medium";
 
 export function UserInputNode({ data }: { data: { label: string } }) {
   return (
