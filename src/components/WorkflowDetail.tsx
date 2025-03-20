@@ -1,49 +1,130 @@
 import { ReactFlow, Background, Controls, Node, Edge } from '@xyflow/react';
 import { Workflow } from '@/types/workflow';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import '@xyflow/react/dist/style.css';
-import {
-  UserInputNode,
-  AIAgentNode,
-  DataRetrievalNode,
-  AnalysisNode,
-  VisualizationNode,
-  ActionNode
-} from './nodes/CustomNodes';
+import { nodeTypes } from './nodes/CustomNodes';
+import { NodeModal } from './NodeModal';
+import { processNode } from '@/lib/api';
+import { WorkflowExecutor, NodeData } from '@/lib/workflowExecutor';
 
 type WorkflowDetailProps = {
   workflow: Workflow;
 };
 
-const nodeTypes = {
-  user_input: UserInputNode,
-  ai_agent: AIAgentNode,
-  data_retrieval: DataRetrievalNode,
-  analysis: AnalysisNode,
-  visualization: VisualizationNode,
-  action: ActionNode,
-};
-
-const initialNodes: Node[] = [
-  { id: "1", type: "user_input", data: { label: "User Query" }, position: { x: 100, y: 0 } },
-  { id: "2", type: "ai_agent", data: { label: "AI Assistant" }, position: { x: 300, y: 0 } },
-  { id: "3", type: "data_retrieval", data: { label: "Financial Data API" }, position: { x: 500, y: -50 } },
-  { id: "4", type: "analysis", data: { label: "Data Analysis" }, position: { x: 700, y: 0 } },
-  { id: "5", type: "visualization", data: { label: "Generate Report" }, position: { x: 900, y: 0 } },
-  { id: "6", type: "action", data: { label: "Send Report" }, position: { x: 1100, y: 0 } },
+const initialNodes: Node<NodeData>[] = [
+  {
+    id: '1',
+    type: 'user_input',
+    position: { x: 100, y: 0 },
+    data: { label: 'User Query', type: 'input', status: 'idle' },
+  },
+  {
+    id: '2',
+    type: 'ai_agent',
+    position: { x: 300, y: 0 },
+    data: { label: 'AI Assistant', type: 'ai', status: 'idle' },
+  },
+  {
+    id: '3',
+    type: 'data_retrieval',
+    position: { x: 500, y: -50 },
+    data: { label: 'Financial Data API', type: 'data', status: 'idle' },
+  },
+  {
+    id: '4',
+    type: 'analysis',
+    position: { x: 700, y: 0 },
+    data: { label: 'Data Analysis', type: 'analysis', status: 'idle' },
+  },
+  {
+    id: '5',
+    type: 'visualization',
+    position: { x: 900, y: 0 },
+    data: { label: 'Generate Report', type: 'visualization', status: 'idle' },
+  },
+  {
+    id: '6',
+    type: 'action',
+    position: { x: 1100, y: 0 },
+    data: { label: 'Send Report', type: 'action', status: 'idle' },
+  },
 ];
 
 const initialEdges: Edge[] = [
-  { id: "e1-2", source: "1", target: "2", type: 'smoothstep' },
-  { id: "e2-3", source: "2", target: "3", type: 'smoothstep' },
-  { id: "e3-4", source: "3", target: "4", type: 'smoothstep' },
-  { id: "e4-5", source: "4", target: "5", type: 'smoothstep' },
-  { id: "e5-6", source: "5", target: "6", type: 'smoothstep' },
+  { id: 'e1-2', source: '1', target: '2', type: 'smoothstep' },
+  { id: 'e2-3', source: '2', target: '3', type: 'smoothstep' },
+  { id: 'e3-4', source: '3', target: '4', type: 'smoothstep' },
+  { id: 'e4-5', source: '4', target: '5', type: 'smoothstep' },
+  { id: 'e5-6', source: '5', target: '6', type: 'smoothstep' },
 ];
 
 export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
-  const [nodes] = useState(initialNodes);
-  const [edges] = useState(initialEdges);
+  const [nodes, setNodes] = useState(initialNodes);
+  const [edges, setEdges] = useState(initialEdges);
+  const [selectedNode, setSelectedNode] = useState<Node<NodeData> | null>(null);
+  const [isExecuting, setIsExecuting] = useState(false);
+
+  const updateNode = useCallback((nodeId: string, data: Partial<NodeData>) => {
+    setNodes(nds =>
+      nds.map(n =>
+        n.id === nodeId
+          ? { ...n, data: { ...n.data, ...data } }
+          : n
+      )
+    );
+  }, []);
+
+  const executeWorkflow = useCallback(async () => {
+    if (isExecuting) return;
+
+    setIsExecuting(true);
+    try {
+      const executor = new WorkflowExecutor(nodes, edges, updateNode);
+      await executor.execute();
+    } catch (error) {
+      console.error('Workflow execution failed:', error);
+    } finally {
+      setIsExecuting(false);
+    }
+  }, [nodes, edges, updateNode, isExecuting]);
+
+  const onNodeClick = useCallback(async (event: React.MouseEvent, node: Node<NodeData>) => {
+    setSelectedNode(node);
+
+    // Process node when clicked
+    try {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id ? { ...n, data: { ...n.data, status: 'processing' } } : n
+        )
+      );
+
+      const result = await processNode(node);
+
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id
+            ? { ...n, data: { ...n.data, status: 'completed', result } }
+            : n
+        )
+      );
+    } catch (error) {
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === node.id
+            ? { ...n, data: { ...n.data, status: 'error' } }
+            : n
+        )
+      );
+    }
+  }, []);
+
+  const onNodeDragStop = useCallback(
+    (event: React.MouseEvent, node: Node<NodeData>, nodes: Node<NodeData>[]) => {
+      setNodes(nodes);
+    },
+    []
+  );
 
   return (
     <div className="space-y-6">
@@ -53,8 +134,15 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
           <p className="text-gray-400">{workflow.description}</p>
         </div>
         <div className="flex gap-3">
-          <button className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg">
-            Run Workflow
+          <button
+            className={`px-4 py-2 rounded-lg ${isExecuting
+                ? 'bg-purple-600/50 cursor-not-allowed'
+                : 'bg-purple-600 hover:bg-purple-700'
+              }`}
+            onClick={executeWorkflow}
+            disabled={isExecuting}
+          >
+            {isExecuting ? 'Running...' : 'Run Workflow'}
           </button>
           <button className="px-4 py-2 bg-[#2a2b36] hover:bg-[#32333e] rounded-lg">
             Edit
@@ -67,8 +155,8 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
           <div className="text-sm text-gray-400 mb-2">Status</div>
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${workflow.status === 'active' ? 'bg-green-400' :
-                workflow.status === 'scheduled' ? 'bg-yellow-400' :
-                  'bg-gray-400'
+              workflow.status === 'scheduled' ? 'bg-yellow-400' :
+                'bg-gray-400'
               }`} />
             <span className="capitalize">{workflow.status}</span>
           </div>
@@ -89,9 +177,11 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
             <ReactFlow
               nodes={nodes}
               edges={edges}
-              fitView
+              onNodeClick={onNodeClick}
+              onNodeDragStop={onNodeDragStop}
               nodeTypes={nodeTypes}
               defaultEdgeOptions={{ type: 'smoothstep' }}
+              fitView
             >
               <Background />
               <Controls />
@@ -117,8 +207,8 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
                 >
                   <div
                     className={`max-w-[80%] rounded-lg p-4 ${message.role === 'user'
-                        ? 'bg-purple-600/20 text-purple-200'
-                        : 'bg-[#1a1b23] text-gray-300'
+                      ? 'bg-purple-600/20 text-purple-200'
+                      : 'bg-[#1a1b23] text-gray-300'
                       }`}
                   >
                     <div className="mb-1">{message.content}</div>
@@ -165,6 +255,13 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
           </div>
         </div>
       </div>
+
+      {selectedNode && (
+        <NodeModal
+          node={selectedNode}
+          onClose={() => setSelectedNode(null)}
+        />
+      )}
     </div>
   );
 } 
