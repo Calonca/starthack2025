@@ -3,7 +3,7 @@ import { GoogleGenerativeAI, GenerativeModel, GenerativeContentResult } from "@g
 import axios from "axios"; // For making HTTP requests to financial APIs
 const baseUrl = 'https://idchat-api-containerapp01-dev.orangepebble-16234c4b.switzerlandnorth.azurecontainerapps.io/';
 
-const genAI = new GoogleGenerativeAI("add_api_key_here");
+const genAI = new GoogleGenerativeAI("AIzaSyBCBIiMXwnTmiZ44fMeu1XAc8pea3Qbk-M");
 
 // Tool function implementations
 async function getCompanyNews(symbol) {
@@ -87,7 +87,7 @@ async function getHistoricalPriceData(query, first, last) {
     let b = JSON.parse(a.data)
     // console.log("bo0", b);
     let stock_prices = JSON.parse(Object.values(b)[0])
-    return {type: "historical_data", data: {name: query, prices: stock_prices}};
+    return {type: "historical_data", data: {label: query, prices: stock_prices}};
   } catch (error) {
     return `Error fetching historical price data: ${error.message}`;
   }
@@ -221,7 +221,11 @@ export async function level0graph(companyQuery) {
     let id = 0;
     const nodes = toolCalls.map( (tool, index) => {
       console.log(`\n🔧 Tool: ${JSON.stringify(tool)}`);
-      let result = {type: "ai_agent", data: {label: `Retrieving infomation about Nvidia from ${tool.name}`}};
+      let type = "ai_agent";
+      if (tool.name === "getHistoricalPriceData") {
+        type = "historical_data";
+      }
+      let result = {type: type, data: {label: `Retrieving infomation with ${tool.name}`}};
       // let result = await getResult(tool);
       // console.log(`🔍 Result: ${JSON.stringify(result)}`);
       result.id = id.toString();

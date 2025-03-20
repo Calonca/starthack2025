@@ -29,7 +29,7 @@ const { updateNodeData } = useReactFlow();
 
   return (
     <div className={`${baseNodeStyles} bg-blue-500/20 border border-blue-500/50`}>
-      <Handle type="target" position={Position.Left} />
+      <Handle type="target" position={Position.Top} style={{ width: '10px', height: '10px' }} />
       <div className="flex items-center gap-2">
         <span>👤fsf</span>
         {data.label}

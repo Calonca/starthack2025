@@ -50,14 +50,14 @@ const STOCK_PRICES = {
 }
 
 const initialNodes: Node[] = [
-  { id: "1", type: "historical_data", data: {name: "NVDA", prices: STOCK_PRICES}, position: {x: 0, y: 0}},
-  { id: "4", type: "historical_data", data: {name: "Test2", prices: {
-    "2025-03-19T00:00:00.000":{"open":6.5,"high":6.595,"low":6.488,"close":6.561,"vol":31123749,"Total return":"54.29%","Anualized return":"7.23%","Max":6.595,"Min":1.4396904312},
-"2025-03-20T00:00:00.000":{"open":6.5,"high":6.595,"low":6.488,"close":6.561,"vol":31123749,"Total return":"54.29%","Anualized return":"7.23%","Max":6.595,"Min":1.4396904312}}
-}, position: {x: 0, y: -100}},
-  { id: "2", type: "average_node", data: {prices: {}}, position: {x: 300, y: 0}},
-  { id: "3", type: "risk_assessment_node", data: {}, position: {x: 300, y: 100}},
-  { id: "5", type: "candle_chart_node", data: {}, position: {x: 300, y: 200}},
+//   { id: "1", type: "historical_data", data: {name: "NVDA", prices: STOCK_PRICES}, position: {x: 0, y: 0}},
+//   { id: "4", type: "historical_data", data: {name: "Test2", prices: {
+//     "2025-03-19T00:00:00.000":{"open":6.5,"high":6.595,"low":6.488,"close":6.561,"vol":31123749,"Total return":"54.29%","Anualized return":"7.23%","Max":6.595,"Min":1.4396904312},
+// "2025-03-20T00:00:00.000":{"open":6.5,"high":6.595,"low":6.488,"close":6.561,"vol":31123749,"Total return":"54.29%","Anualized return":"7.23%","Max":6.595,"Min":1.4396904312}}
+// }, position: {x: 0, y: -100}},
+//   { id: "2", type: "average_node", data: {prices: {}}, position: {x: 300, y: 0}},
+//   { id: "3", type: "risk_assessment_node", data: {}, position: {x: 300, y: 100}},
+//   { id: "5", type: "candle_chart_node", data: {}, position: {x: 300, y: 200}},
   /*
   { id: "1", type: "user_input", data: { label: "User Query" }, position: { x: 100, y: 0 } },
   { id: "2", type: "ai_agent", data: { label: "AI Assistant" }, position: { x: 300, y: 0 } },
@@ -69,7 +69,7 @@ const initialNodes: Node[] = [
 ];
 
 const initialEdges: Edge[] = [
-  { id: "e1-3", source: "1", target: "3", type: "smoothstep"},
+  // { id: "e1-3", source: "1", target: "3", type: "smoothstep"},
   //{ id: "e1-2", source: "1", target: "2", type: 'smoothstep' },
   /*
   { id: "e2-3", source: "2", target: "3", type: 'smoothstep' },
@@ -176,26 +176,26 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
 
   const [inInitialized, setState] = useState(false)
 
-  // useEffect(() => {
-    
-  //   const fetchGraph = async () => {
-  //     try {
-  //       const nodes : {
-  //         type: string;
-  //         data: {label: string;}; }[] 
-  //         = await level0graph("get me the latest news, summary and stock price of nvidia");
-  //       console.log("nodes", nodes);
-  //       setNodes((nds) => [
-  //         ...nds,
-  //         ...nodes
-  //       ]);
-  //     } catch (error) {
-  //       console.error("Error loading workflow graph:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchGraph = async () => {
+      try {
+        const nodes : {
+          type: string;
+          data: {label: string;}; }[] 
+          = await level0graph("provide a summary, stock prize, news and historical data for nvidia since 01 02 2024");
+        console.log("nodes", nodes);
+        setNodes((nds) => [
+          ...nds,
+          ...nodes
+        ]);
+      } catch (error) {
+        console.error("Error loading workflow graph:", error);
+      }
+    };
 
-  //   fetchGraph();
-  // }, [inInitialized]);
+
+    fetchGraph();
+  }, [inInitialized]);
 
   return (
     <div className="space-y-6">
