@@ -128,7 +128,7 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start ml-8 mr-8">
         <div>
           <h1 className="text-2xl font-bold mb-2">{workflow.name}</h1>
           <p className="text-gray-400">{workflow.description}</p>
@@ -136,8 +136,8 @@ export function WorkflowDetail({ workflow }: WorkflowDetailProps) {
         <div className="flex gap-3">
           <button
             className={`px-4 py-2 rounded-lg ${isExecuting
-                ? 'bg-purple-600/50 cursor-not-allowed'
-                : 'bg-purple-600 hover:bg-purple-700'
+              ? 'bg-purple-600/50 cursor-not-allowed'
+              : 'bg-purple-600 hover:bg-purple-700'
               }`}
             onClick={executeWorkflow}
             disabled={isExecuting}

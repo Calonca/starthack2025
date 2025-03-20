@@ -137,28 +137,30 @@ export default function CreateWorkflowPage() {
   };
 
   return (
-    <div className="fixed inset-0 flex flex-col">
-      {/* Messages area */}
-      <div className="flex-1 overflow-auto p-4">
-        <div className="max-w-4xl mx-auto space-y-4">
+    <div className="relative flex flex-col min-h-screen">
+      {/* Messages area with better padding and background */}
+      <div className="flex-1 overflow-auto p-8 bg-[#1a1b23]">
+        <div className="max-w-3xl mx-auto space-y-6">
           {messages.map((message, index) => (
             <div
               key={index}
               className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg p-4 ${message.role === 'user'
-                  ? 'bg-purple-600/20 text-purple-200'
+                className={`max-w-[80%] rounded-xl p-4 shadow-lg ${message.role === 'user'
+                  ? 'bg-purple-600 text-white'
                   : 'bg-[#2a2b36] text-gray-200'
                   }`}
               >
-                <div className="whitespace-pre-wrap">{message.content}</div>
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {message.content}
+                </div>
                 {message.flowComponent && (
-                  <div className="mt-2 text-xs text-purple-400">
+                  <div className="mt-3 pt-3 border-t border-gray-700 text-xs text-purple-300">
                     Added workflow component: {message.flowComponent.nodeId}
                   </div>
                 )}
-                <div className="text-xs text-gray-500 mt-1">
+                <div className="mt-2 text-xs opacity-60">
                   {new Date(message.timestamp).toLocaleTimeString()}
                 </div>
               </div>
@@ -166,7 +168,7 @@ export default function CreateWorkflowPage() {
           ))}
           {isGenerating && (
             <div className="flex justify-start">
-              <div className="bg-[#2a2b36] rounded-lg p-4 flex items-center gap-2">
+              <div className="bg-[#2a2b36] rounded-xl p-4 flex items-center gap-2">
                 <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse" />
                 <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse delay-150" />
                 <div className="w-2 h-2 bg-purple-500 rounded-full animate-pulse delay-300" />
@@ -176,9 +178,9 @@ export default function CreateWorkflowPage() {
         </div>
       </div>
 
-      {/* Fixed prompt input at bottom */}
-      <div className="border-t border-gray-800 bg-[#1f2027] p-4">
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto flex gap-4 items-end">
+      {/* Input area with better contrast */}
+      <div className="border-t border-gray-800 bg-[#1f2027] p-6">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto flex gap-4 items-end">
           <div className="flex-1 relative">
             <textarea
               ref={textareaRef}
@@ -188,7 +190,7 @@ export default function CreateWorkflowPage() {
                 adjustTextareaHeight();
               }}
               onKeyDown={handleKeyDown}
-              className="w-full bg-[#2a2b36] border border-gray-700 rounded-lg px-4 py-3 focus:outline-none focus:border-purple-500 text-lg resize-none min-h-[60px] max-h-[150px]"
+              className="w-full bg-[#2a2b36] border border-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 text-base resize-none min-h-[60px] max-h-[150px]"
               placeholder="What kind of financial insights are you looking for?"
               disabled={isGenerating}
               rows={1}
@@ -202,9 +204,9 @@ export default function CreateWorkflowPage() {
           <button
             type="submit"
             disabled={isGenerating || !prompt.trim()}
-            className={`px-6 py-3 rounded-lg text-lg shrink-0 transition-colors ${isGenerating || !prompt.trim()
+            className={`px-6 py-3 rounded-xl text-base font-medium transition-colors ${isGenerating || !prompt.trim()
               ? 'bg-purple-600/50 cursor-not-allowed'
-              : 'bg-purple-600 hover:bg-purple-700'
+              : 'bg-purple-600 hover:bg-purple-700 active:bg-purple-800'
               }`}
           >
             {isGenerating ? 'Creating...' : 'Create'}
