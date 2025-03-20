@@ -5,14 +5,14 @@ export type ChatMessage = {
   timestamp: string;
 };
 
-export type Workflow = {
+export interface Workflow {
   id: string;
   name: string;
   description: string;
-  status: 'active' | 'scheduled' | 'completed';
-  progress: number;
+  status: 'active' | 'scheduled' | 'completed' | 'error';
   lastRun: string;
   assignee: string;
-  chatHistory: ChatMessage[];
   prompt: string;
-}; 
+  chatHistory: Array<any>;
+  progress?: number;
+} 
