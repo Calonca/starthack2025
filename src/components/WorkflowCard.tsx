@@ -1,3 +1,4 @@
+'use client'
 import { Workflow } from '@/types/workflow';
 import { useRouter } from 'next/navigation';
 
@@ -15,11 +16,10 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
           <h3 className="text-lg font-semibold mb-2">{workflow.name}</h3>
           <p className="text-gray-400 text-sm">{workflow.description}</p>
         </div>
-        <span className={`px-3 py-1 rounded-full text-xs ${
-          workflow.status === 'active' ? 'bg-green-500/20 text-green-400' :
-          workflow.status === 'scheduled' ? 'bg-yellow-500/20 text-yellow-400' :
-          'bg-gray-500/20 text-gray-400'
-        }`}>
+        <span className={`px-3 py-1 rounded-full text-xs ${workflow.status === 'active' ? 'bg-green-500/20 text-green-400' :
+            workflow.status === 'scheduled' ? 'bg-yellow-500/20 text-yellow-400' :
+              'bg-gray-500/20 text-gray-400'
+          }`}>
           {workflow.status}
         </span>
       </div>
@@ -44,7 +44,7 @@ export function WorkflowCard({ workflow }: WorkflowCardProps) {
       </div>
 
       <div className="flex justify-between">
-        <button 
+        <button
           className="text-gray-400 hover:text-white px-4 py-2 rounded-lg bg-[#1a1b23]"
           onClick={() => router.push(`/workflow/${workflow.id}`)}
         >

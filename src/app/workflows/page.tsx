@@ -1,18 +1,20 @@
-'use client';
-
-import { Navbar } from '@/components/Navbar';
-import { Sidebar } from '@/components/Sidebar';
-import { WorkflowHeader } from '@/components/WorkflowHeader';
-import { WorkflowGrid } from '@/components/WorkflowGrid';
-import { initialWorkflows } from '@/data/workflows';
 import { WorkflowCard } from '@/components/WorkflowCard';
+import Link from 'next/link';
 
-export default function DashboardPage() {
+export default function WorkflowsPage() {
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold mb-2">Dashboard</h1>
-        <p className="text-gray-400">Welcome to your AI workflow dashboard</p>
+      <div className="flex justify-between items-start">
+        <div>
+          <h1 className="text-2xl font-bold mb-2">Workflows</h1>
+          <p className="text-gray-400">Manage your AI workflows</p>
+        </div>
+        <Link 
+          href="/workflows/create"
+          className="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg"
+        >
+          Create Workflow
+        </Link>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -32,4 +34,4 @@ export default function DashboardPage() {
       </div>
     </div>
   );
-}
+} 
