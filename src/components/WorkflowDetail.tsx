@@ -342,7 +342,7 @@ export function WorkflowDetail({
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-2 gap-6">
         <div className="col-span-2 space-y-6">
           <div className="h-[500px] bg-[#2a2b36] rounded-lg">
             <ReactFlowDynamic
@@ -375,38 +375,6 @@ export function WorkflowDetail({
 
         </div>
 
-        <div className="space-y-6">
-          {/* Configuration Panel */}
-          <div className="bg-[#2a2b36] p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Configuration</h3>
-            <div className="space-y-4">
-              <div>
-                <div className="text-sm text-gray-400 mb-1">Trigger Type</div>
-                <div>Manual</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-400 mb-1">Schedule</div>
-                <div>Every 6 hours</div>
-              </div>
-            </div>
-          </div>
-
-          {/* Recent Runs Panel */}
-          <div className="bg-[#2a2b36] p-6 rounded-lg">
-            <h3 className="text-lg font-semibold mb-4">Recent Runs</h3>
-            <div className="space-y-3">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex justify-between items-center py-2 border-b border-gray-700 last:border-0">
-                  <div>
-                    <div className="text-sm">Run #{i + 1}</div>
-                    <div className="text-xs text-gray-400">2h ago</div>
-                  </div>
-                  <span className="text-green-400">Successful</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
 
       {selectedNode && (
