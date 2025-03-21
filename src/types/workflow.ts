@@ -5,6 +5,12 @@ export type ChatMessage = {
   timestamp: string;
 };
 
+interface Author {
+  name: string;
+  avatar: string;
+  role: string;
+}
+
 export interface Workflow {
   id: string;
   name: string;
@@ -12,6 +18,7 @@ export interface Workflow {
   status: 'active' | 'scheduled' | 'completed' | 'error' | 'idle';
   lastRun: string;
   assignee: string;
+  author?: Author;
   prompt: string;
   chatHistory: ChatMessage[];
   progress: number;
