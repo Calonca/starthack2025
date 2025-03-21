@@ -231,9 +231,13 @@ export function WorkflowDetail({ workflow, setWorkflow }: WorkflowDetailProps) {
     },
     [setNodes]
   );
-  
   // Initialize chatHistory state
   const [chatHistory, setChatHistory] = useState<Array<{ sent: boolean; message: string }>>([]);
+
+  // Function to create a string containing all chat history
+  const poorManChatHistory = useCallback(() => {
+    return chatHistory.map(msg => `${msg.sent ? 'User: ' : 'Assistant: '}${msg.message}`).join('\n\n');
+  }, [chatHistory]);
 
   // Function to add a new message to chatHistory
   const addMessageToChatHistory = async (messageContent: string) => {
@@ -257,16 +261,20 @@ export function WorkflowDetail({ workflow, setWorkflow }: WorkflowDetailProps) {
 
   const fetchGraph = async (prompt: string) => {
     try {
-      console.log("workflow", workflow)
-      console.log(prompt)
-      const response_and_nodes = await level0graph(prompt || "provide a summary, stock prize, news and historical data for nvidia since 01 02 2024");
+      console.log("workflow", workflow);
+      console.log(prompt);
+      
+      // Use the full chat history context when making the request
+      const fullContext = poorManChatHistory() + '\n\nUser: ' + prompt;
+      
+      const response_and_nodes = await level0graph(fullContext || "provide a summary, stock prize, news and historical data for nvidia since 01 02 2024");
       const nodes = response_and_nodes.nodes;
       const response = response_and_nodes.text;
       console.log("nodes", nodes);
       console.log("response", response);
       setNodes(nds => nds.concat(nodes as Node<NodeData>[]));
       setWorkflow({ ...workflow, prompt: '' });
-      console.log("workflow", workflow)
+      console.log("workflow", workflow);
       return response;
     } catch (error) {
       console.error("Error loading workflow graph:", error);
