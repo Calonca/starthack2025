@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 
-export function WorkflowPromptChat({ chatHistory, inputTextCallback }) {
+export function WorkflowPromptChat({ chatHistory, inputTextCallback }: { chatHistory: any[], inputTextCallback: (inputText: string) => void }) {
   const [inputText, setInputText] = useState('');
 
-  const handleInputChange = (event) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setInputText(event.target.value);
   };
 
@@ -14,7 +14,7 @@ export function WorkflowPromptChat({ chatHistory, inputTextCallback }) {
     }
   };
 
-  const handleKeyDown = (event) => {
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
     if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault(); // Prevent default behavior (form submission)
       handleSendMessage();

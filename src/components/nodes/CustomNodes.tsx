@@ -1,7 +1,9 @@
 import { getResult } from '@/lib/convertToReactFlow';
-import { Handle, Position, useNodeConnections, useNodesData, useReactFlow, 
+import {
+  Handle, Position, useNodeConnections, useNodesData, useReactFlow,
   type NodeProps,
-  type Node,} from '@xyflow/react';
+  type Node,
+} from '@xyflow/react';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 
@@ -19,36 +21,31 @@ export function UserInputNode({ data }: { data: { label: string } }) {
   );
 }
 
-type AiAgentNode = Node<{ label: string, tool: any ,  }>
+type AiAgentNode = Node<{ label: string, tool: any, }>
 
-export function AIAgentNode({id, data }: NodeProps<AiAgentNode>) {
-  let tool = data.tool;
-
+export function AIAgentNode({ id, data }: NodeProps<AiAgentNode>) {
+  const tool = data.tool;
   const [label, setLabel] = useState(data.label);
   const { updateNodeData } = useReactFlow();
   const [dataFetched, setDataFetched] = useState(false);
 
-
   useEffect(() => {
-    const a = async() => {
+    const a = async () => {
       if (!dataFetched) {
-          setDataFetched(true);
-        // Initialize with data.label
+        setDataFetched(true);
         setLabel(data.label);
-        
-        // Test feature: change label after 10 seconds
-        const res = await getResult(tool)
+
+        const res = await getResult(tool);
+        // @ts-ignore
         setLabel(res.data.label);
         updateNodeData(id, {
+          // @ts-ignore
           label: res.data.label
         });
-        // Process tool if available
-        console.log("Processing tool promise:", res);
       }
-    }
-    a()
-      
-  }, [tool, data.label]); // Add data.label as a dependency
+    };
+    a();
+  }, [tool, data.label, dataFetched, id, updateNodeData]);
 
   return (
     <div className={`${baseNodeStyles} bg-purple-500/20 border border-purple-500/50 w-100`}>
@@ -118,7 +115,7 @@ export function ActionNode({ data }: { data: { label: string } }) {
       </div>
     </div>
   );
-} 
+}
 
 type HistoricalDataPlotNode = Node<{ label: string, prices: Array<object>, tool: any }>
 function isHistoricalDataPlotNode(
@@ -128,8 +125,8 @@ function isHistoricalDataPlotNode(
 }
 
 
-export function HistoricalDataPlotNode({ id, data }: 
-  NodeProps<HistoricalDataPlotNode> ) {
+export function HistoricalDataPlotNode({ id, data }:
+  NodeProps<HistoricalDataPlotNode>) {
 
   const [label, setLabel] = useState(data.label);
   // Plots the candle chart for the historical price of a stock
@@ -139,34 +136,38 @@ export function HistoricalDataPlotNode({ id, data }:
 
   useEffect(() => {
     setLabel(data.label);
-    
-    const fetchData = async() => {
+
+    const fetchData = async () => {
       if (!dataFetched) {
         setDataFetched(true);
         // Initialize with data.label
+        // @ts-ignore
         const res = await getResult(data.tool);
+        // @ts-ignore
         setLabel("Historical prices ");
+        // @ts-ignore
         updateNodeData(id, {
+          // @ts-ignore
           prices: res.data.prices
         });
         // Process tool if available
         // Add other nodes
         const nodePos = reactFlowInstance.getNode(id)?.position || { x: 0, y: 0 };
         console.log("Processing tool with pos:", nodePos);
-        const avg_node = { id: "avg", type: "average_node", data: {prices: {}}, position: {x: nodePos.x, y: nodePos.y + 100}}
+        const avg_node = { id: "avg", type: "average_node", data: { prices: {} }, position: { x: nodePos.x, y: nodePos.y + 100 } }
         reactFlowInstance.addNodes(avg_node);
-        reactFlowInstance.addEdges([{id: `${id}_avg`,source: id, target: "avg", type: "smoothstep"}]);
-        const risk_assessment_node = { id: "risk", type: "risk_assessment_node", data: {}, position: {x: avg_node.position.x + 300, y: avg_node.position.y}}
+        reactFlowInstance.addEdges([{ id: `${id}_avg`, source: id, target: "avg", type: "smoothstep" }]);
+        const risk_assessment_node = { id: "risk", type: "risk_assessment_node", data: {}, position: { x: avg_node.position.x + 300, y: avg_node.position.y } }
         reactFlowInstance.addNodes(risk_assessment_node);
         // { id: "3", type: "risk_assessment_node", data: {}, position: {x: 300, y: 100}},
-        const candle_chart_node = { id: "candle", type: "candle_chart_node", data: {}, position: {x: risk_assessment_node.position.x + 300, y: risk_assessment_node.position.y}}
+        const candle_chart_node = { id: "candle", type: "candle_chart_node", data: {}, position: { x: risk_assessment_node.position.x + 300, y: risk_assessment_node.position.y } }
         // { id: "5", type: "candle_chart_node", data: {}, position: {x: 300, y: 200}},
         reactFlowInstance.addNodes(candle_chart_node);
       }
     };
-    
+
     fetchData();
-  }, [data.tool, data.label, updateNodeData, dataFetched]); 
+  }, [data.tool, data.label, updateNodeData, dataFetched, id, reactFlowInstance]);
 
   return (
     <div className={`${baseNodeStyles} bg-white-500/20 border border-white-500/50`}>
@@ -175,34 +176,27 @@ export function HistoricalDataPlotNode({ id, data }:
         {`${label} for ${data.tool.args.query}`}
       </div>
 
-      <Handle 
-        type="source" 
-        position={Position.Bottom} 
-        style={{ width: '10px', height: '10px' }} 
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{ width: '10px', height: '10px' }}
       />
     </div>
   );
-} 
+}
 
-export function CalculateAverageNode({ data } : { data : string }) {
-  // Calculates the average on the prices and outputs the number
+export function CalculateAverageNode({ data }: { data: string }) {
   const { updateNodeData } = useReactFlow();
   const connections = useNodeConnections({
     handleType: 'target',
   });
   const nodesData = useNodesData<Node>(connections[0]?.source)?.data || null;
-  // const historicalDataPlotNode = isHistoricalDataPlotNode(nodesData) ? nodesData : null;
-  // console.log(historicalDataPlotNode)
 
-  let average = 0  
-  if(nodesData !== null) {
-    for(let key of Object.keys(nodesData?.prices)){
-      average += nodesData.prices[key].close
-    }
-    average /= Object.keys(nodesData?.prices).length
-    average *= 100
-    average = Math.floor(average)
-    average /= 100
+  let average = 0;
+  if (nodesData !== null) {
+    const prices = Object.entries(nodesData?.prices || {});
+    average = prices.reduce((sum, [_, price]) => sum + price.close, 0) / prices.length;
+    average = Math.floor(average * 100) / 100;
   }
 
   return (

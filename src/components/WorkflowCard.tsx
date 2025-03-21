@@ -3,11 +3,12 @@ import { Workflow } from '@/types/workflow';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 
-type WorkflowCardProps = {
+interface WorkflowCardProps {
   workflow: Workflow;
-};
+  onShare: (workflow: Workflow) => void;
+}
 
-export function WorkflowCard({ workflow, shareWorkflow }: WorkflowCardProps) {
+export function WorkflowCard({ workflow, onShare }: WorkflowCardProps) {
   const router = useRouter();
 
   return (
@@ -18,8 +19,8 @@ export function WorkflowCard({ workflow, shareWorkflow }: WorkflowCardProps) {
           <p className="text-gray-400 text-sm">{workflow.description}</p>
         </div>
         <span className={`px-3 py-1 rounded-full text-xs ${workflow.status === 'active' ? 'bg-green-500/20 text-green-400' :
-            workflow.status === 'scheduled' ? 'bg-yellow-500/20 text-yellow-400' :
-              'bg-gray-500/20 text-gray-400'
+          workflow.status === 'scheduled' ? 'bg-yellow-500/20 text-yellow-400' :
+            'bg-gray-500/20 text-gray-400'
           }`}>
           {workflow.status}
         </span>
@@ -51,10 +52,10 @@ export function WorkflowCard({ workflow, shareWorkflow }: WorkflowCardProps) {
         >
           View Details
         </button>
-        <button className="text-gray-400 hover:text-white px-4 py-2"
-        onClick={() => {
-          shareWorkflow(workflow)
-        }}>
+        <button
+          className="text-gray-400 hover:text-white px-4 py-2"
+          onClick={() => onShare(workflow)}
+        >
           Share
         </button>
       </div>

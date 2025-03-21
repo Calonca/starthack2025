@@ -9,9 +9,7 @@ import { initialWorkflows } from '@/data/workflows';
 export default function Dashboard() {
   return (
     <div className="min-h-screen bg-[#1a1b23] text-white">
-      <Sidebar />
       <div className="ml-64">
-        <Navbar />
         <main className="p-8">
           <WorkflowHeader />
           <WorkflowGrid workflows={initialWorkflows} />

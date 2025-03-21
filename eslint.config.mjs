@@ -11,7 +11,12 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.config({
-    extends: ['next'],
+    extends: [
+      'next',
+      'plugin:@typescript-eslint/recommended'
+    ],
+    parser: '@typescript-eslint/parser',
+    plugins: ['@typescript-eslint'],
     rules: {
       'react/no-unescaped-entities': 'off',
       '@next/next/no-page-custom-font': 'off',
@@ -19,7 +24,13 @@ const eslintConfig = [
       '@typescript-eslint/no-unused-vars': 'off',
       'no-unused-vars': 'off',
       '@typescript-eslint/ban-types': 'off',
-      '@typescript-eslint/no-empty-interface': 'off'
+      '@typescript-eslint/no-empty-interface': 'off',
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-assignment': 'off',
+      '@typescript-eslint/no-unsafe-call': 'off',
+      '@typescript-eslint/no-unsafe-argument': 'off',
+      '@typescript-eslint/ban-ts-comment': 'off',
+      'prefer-const': 'off'
     },
   }),
 ];

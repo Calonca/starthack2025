@@ -3,29 +3,29 @@ import { Workflow } from '@/types/workflow';
 export const initialWorkflows: Workflow[] = [
   {
     id: '1',
-    name: 'Bitcoin Analysis',
-    description: 'Real-time BTC price analysis with technical indicators',
+    name: 'NVIDIA Analysis',
+    description: 'Real-time NVIDIA stock analysis with technical indicators',
     status: 'active',
     progress: 75,
     lastRun: '2h ago',
     assignee: 'AI Assistant',
-    prompt: 'Analyzes Bitcoin price movements and generates trading signals',
+    prompt: 'get me the prices of NVIDIA since 2024',
     chatHistory: [
       {
         id: '1',
-        content: 'Create a workflow for Bitcoin price analysis',
+        content: 'Create a workflow for NVIDIA price analysis',
         role: 'user',
         timestamp: '2024-03-15T10:00:00Z'
       },
       {
         id: '2',
-        content: "I'll help you create a workflow for Bitcoin price analysis. What indicators would you like to include?",
+        content: "I'll help you analyze NVIDIA's stock performance. What specific metrics would you like to see?",
         role: 'assistant',
         timestamp: '2024-03-15T10:00:05Z'
       },
       {
         id: '3',
-        content: "Let's use RSI, MACD, and Moving Averages",
+        content: "Let's look at price trends, technical indicators, and market sentiment",
         role: 'user',
         timestamp: '2024-03-15T10:00:30Z'
       }
