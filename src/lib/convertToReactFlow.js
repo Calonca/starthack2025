@@ -235,8 +235,8 @@ export async function level0graph(companyQuery) {
       return result;
     });
     console.log("\n📊 Nodes:", nodes);
-    return nodes;
+    return {text: response.text(), nodes: nodes};
   } else {
-    return []
+    return {text: response.text(), nodes: []}
   }
 }
