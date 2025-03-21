@@ -219,25 +219,39 @@ export function WorkflowDetail({ workflow, setWorkflow }: WorkflowDetailProps) {
 
   const onNodeDragStop = useCallback(
     (event: React.MouseEvent, node: Node<NodeData>, nodes: Node<NodeData>[]) => {
-      setNodes(nodes);
+      // Update only the node that was dragged, preserving all others
+      setNodes((prevNodes) => {
+        return prevNodes.map((prevNode) => {
+          // Find the node that was dragged
+          const updatedNode = nodes.find((n) => n.id === prevNode.id);
+          // If found, return the updated node, otherwise keep the previous one
+          return updatedNode || prevNode;
+        });
+      });
     },
     [setNodes]
   );
-
+  
   // Initialize chatHistory state
   const [chatHistory, setChatHistory] = useState<Array<{ sent: boolean; message: string }>>([]);
 
   // Function to add a new message to chatHistory
-  const addMessageToChatHistory = (messageContent: string) => {
-    fetchGraph(messageContent)
+  const addMessageToChatHistory = async (messageContent: string) => {
     const newMessage = {
       sent: true,
       message: messageContent,
     };
     setChatHistory(prev => [...prev, newMessage]);
+    
+    const response = await fetchGraph(messageContent);
+    if (response) {
+      const newResponse = {
+        sent: false,
+        message: response || '',
+      };
+      setChatHistory(prev => [...prev, newResponse]);
+    }
   };
-
-  // Alessandro code here
 
   const [inInitialized, setState] = useState(false)
 
@@ -245,11 +259,15 @@ export function WorkflowDetail({ workflow, setWorkflow }: WorkflowDetailProps) {
     try {
       console.log("workflow", workflow)
       console.log(prompt)
-      const nodes = await level0graph(prompt || "provide a summary, stock prize, news and historical data for nvidia since 01 02 2024");
+      const response_and_nodes = await level0graph(prompt || "provide a summary, stock prize, news and historical data for nvidia since 01 02 2024");
+      const nodes = response_and_nodes.nodes;
+      const response = response_and_nodes.text;
       console.log("nodes", nodes);
+      console.log("response", response);
       setNodes(nds => nds.concat(nodes as Node<NodeData>[]));
       setWorkflow({ ...workflow, prompt: '' });
       console.log("workflow", workflow)
+      return response;
     } catch (error) {
       console.error("Error loading workflow graph:", error);
     }
