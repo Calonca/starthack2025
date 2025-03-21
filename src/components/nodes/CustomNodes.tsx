@@ -121,41 +121,68 @@ export function ActionNode({ data }: { data: { label: string } }) {
   );
 }
 
-interface NodeData {
-  label: string;
-  tool: {
-    args: {
-      query?: string;
-      startDate?: string;
-      endDate?: string;
-      period?: number;
-      timeframe?: string;
-    };
-    result?: any;
-  };
-  status?: 'idle' | 'processing' | 'completed' | 'error';
+type HistoricalDataPlotNode = Node<{ label: string, prices: Array<object>, tool: any }>
+function isHistoricalDataPlotNode(
+  node: any,
+): node is HistoricalDataPlotNode | undefined {
+  return !node ? false : node.type === 'text' || node.type === 'uppercase';
 }
 
-export function HistoricalDataPlotNode({ data, isConnectable }: NodeProps<NodeData>) {
-  const { label = '', tool } = data;
 
+export function HistoricalDataPlotNode({ id, data }:  NodeProps<HistoricalDataPlotNode>) {
+  const [label, setLabel] = useState(data.label);
+  // Plots the candle chart for the historical price of a stock
+  const { updateNodeData } = useReactFlow();
+  const reactFlowInstance = useReactFlow();
+  const [lastProcessed, setLastProcessed] = useState('');
+
+  useEffect(() => {
+    setLabel(data.label);
+    if (data.tool.args.query !== lastProcessed) {
+      setLastProcessed(data.tool.args.query );
+
+      const fetchData = async () => {
+        // Initialize with data.label
+        // @ts-ignore
+        const res = await getResult(data.tool);
+        // @ts-ignore
+        setLabel("Historical prices ");
+        // @ts-ignore
+        updateNodeData(id, {
+          // @ts-ignore
+          prices: res.data.prices
+        });
+        // Process tool if available
+        // Add other nodes
+        const nodePos = reactFlowInstance.getNode(id)?.position || { x: 0, y: 0 };
+        console.log("Processing tool with pos:", nodePos);
+        const avg_node = { id: "avg", type: "average_node", data: { prices: {} }, position: { x: nodePos.x, y: nodePos.y + 100 } }
+        reactFlowInstance.addNodes(avg_node);
+        reactFlowInstance.addEdges([{ id: `${id}_avg`, source: id, target: "avg", type: "smoothstep" }]);
+        const risk_assessment_node = { id: "risk", type: "risk_assessment_node", data: {}, position: { x: avg_node.position.x + 300, y: avg_node.position.y } }
+        reactFlowInstance.addNodes(risk_assessment_node);
+        // { id: "3", type: "risk_assessment_node", data: {}, position: {x: 300, y: 100}},
+        const candle_chart_node = { id: "candle", type: "candle_chart_node", data: {}, position: { x: risk_assessment_node.position.x + 300, y: risk_assessment_node.position.y } }
+        // { id: "5", type: "candle_chart_node", data: {}, position: {x: 300, y: 200}},
+        reactFlowInstance.addNodes(candle_chart_node);
+      };
+      fetchData();
+
+    }
+
+  }, [data.tool, data.label, updateNodeData, id, reactFlowInstance]);
+  
   return (
-    <div className="bg-[#2a2b36] rounded-lg p-4 shadow-lg border border-gray-700">
+    <div className={`${baseNodeStyles} bg-white-500/20 border border-white-500/50`}>
       <div className="flex items-center gap-2">
         <span>📈</span>
-        {/* Add null check for tool and args */}
-        {`${label}${tool?.args?.query ? ` for ${tool.args.query}` : ''}`}
+        {`${label} for ${data.tool.args.query}`}
       </div>
 
       <Handle
-        type="target"
-        position={Position.Left}
-        isConnectable={isConnectable}
-      />
-      <Handle
         type="source"
-        position={Position.Right}
-        isConnectable={isConnectable}
+        position={Position.Bottom}
+        style={{ width: '10px', height: '10px' }}
       />
     </div>
   );
