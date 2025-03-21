@@ -27,25 +27,28 @@ export function AIAgentNode({ id, data }: NodeProps<AiAgentNode>) {
   const tool = data.tool;
   const [label, setLabel] = useState(data.label);
   const { updateNodeData } = useReactFlow();
-  const [dataFetched, setDataFetched] = useState(false);
-
+  const nameOrSymbol = tool.args.name ? tool.args.name : tool.args.symbol;
+  const [lastProcessed, setLastProcessed] = useState('');
+  
   useEffect(() => {
-    const a = async () => {
-      if (!dataFetched) {
-        setDataFetched(true);
-        setLabel(data.label);
+    if (nameOrSymbol !== lastProcessed) {
+      setLastProcessed(nameOrSymbol);
+      
+      const fetchData = async () => {
+          setLabel(data.label);
 
-        const res = await getResult(tool);
-        // @ts-ignore
-        setLabel(res.data.label);
-        updateNodeData(id, {
+          const res = await getResult(tool);
           // @ts-ignore
-          label: res.data.label
-        });
-      }
-    };
-    a();
-  }, [tool, data.label, dataFetched, id, updateNodeData]);
+          setLabel(res.data.label);
+          updateNodeData(id, {
+            // @ts-ignore
+            label: res.data.label
+          });
+        
+      };
+      fetchData();
+    }
+  }, [data.label]);
 
   return (
     <div className={`${baseNodeStyles} bg-purple-500/20 border border-purple-500/50 w-100`}>
