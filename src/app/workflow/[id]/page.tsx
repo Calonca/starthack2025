@@ -17,7 +17,7 @@ export default function WorkflowPage() {
     <div className="min-h-screen bg-[#1a1b23] text-white">
       <div className="">
         <main className="p-4">
-          <WorkflowDetail workflow={workflow} />
+          <WorkflowDetail workflow={workflow} setWorkflow={() => { }} />
         </main>
       </div>
     </div>

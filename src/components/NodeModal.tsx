@@ -5,6 +5,7 @@ import { CandleChartModal } from './modals/CandleChartModal';
 interface NodeModalProps {
     node: Node<NodeData>;
     onClose: () => void;
+    executions: ExecutionHistory[];
 }
 
 interface ExecutionHistory {
@@ -15,41 +16,63 @@ interface ExecutionHistory {
     details: any;
 }
 
-// Mock data - in real app this would come from your API
-const mockExecutionHistory: Record<string, ExecutionHistory[]> = {
-    user_input: [
-        {
-            id: '1',
-            timestamp: '2024-03-15T14:30:00Z',
-            status: 'success',
-            duration: '2s',
-            details: { query: 'Show me Bitcoin price analysis' }
-        }
-    ],
-    ai_agent: [
-        {
-            id: '1',
-            timestamp: '2024-03-15T14:30:02Z',
-            status: 'success',
-            duration: '5s',
-            details: {
-                prompt: 'Analyze Bitcoin price trends',
-                completion: 'Based on recent data, Bitcoin shows bullish momentum...'
-            }
-        }
-    ],
-    data_retrieval: [
-        {
-            id: '1',
-            timestamp: '2024-03-15T14:30:07Z',
-            status: 'success',
-            duration: '3s',
-            details: {
-                endpoint: 'crypto/historical',
-                parameters: { symbol: 'BTC', interval: '1d' }
-            }
-        }
-    ]
+// Update mock data structure to be dynamic based on node type
+const generateExecutionHistory = (node: Node<NodeData>): ExecutionHistory[] => {
+    const timestamp = new Date().toISOString();
+
+    switch (node.type) {
+        case 'data_source':
+            return [{
+                id: '1',
+                timestamp,
+                status: 'success',
+                duration: '3s',
+                details: {
+                    endpoint: 'historical_price',
+                    parameters: {
+                        symbol: 'NVIDIA',
+                        startDate: '2024-01-01',
+                        interval: '1d'
+                    },
+                    result: node.data.result
+                }
+            }];
+
+        case 'analysis':
+            return [{
+                id: '1',
+                timestamp,
+                status: 'success',
+                duration: '2s',
+                details: {
+                    type: 'technical_analysis',
+                    indicators: ['RSI', 'MACD', 'Moving Averages'],
+                    result: node.data.result
+                }
+            }];
+
+        case 'visualization':
+            return [{
+                id: '1',
+                timestamp,
+                status: 'success',
+                duration: '1s',
+                details: {
+                    chartType: 'candlestick',
+                    timeframe: 'daily',
+                    dataPoints: node.data.result?.history?.length || 0
+                }
+            }];
+
+        default:
+            return [{
+                id: '1',
+                timestamp,
+                status: 'success',
+                duration: '1s',
+                details: node.data.result || {}
+            }];
+    }
 };
 
 function UserInputContent({ node }: { node: Node<NodeData> }) {
@@ -137,45 +160,48 @@ function DataRetrievalContent({ node }: { node: Node<NodeData> }) {
     );
 }
 
-function ExecutionHistorySection({ nodeType }: { nodeType: string | undefined }) {
-    const history = nodeType ? mockExecutionHistory[nodeType] || [] : [];
-
+// Update ExecutionHistorySection to use passed executions
+function ExecutionHistorySection({ executions }: { executions: ExecutionHistory[] }) {
     return (
         <div className="bg-[#2a2b36] p-4 rounded-lg">
             <h3 className="text-lg font-semibold mb-4">Execution History</h3>
             <div className="space-y-3">
-                {history.map((execution) => (
-                    <div
-                        key={execution.id}
-                        className="bg-[#1a1b23] p-3 rounded-lg"
-                    >
-                        <div className="flex justify-between items-start mb-2">
-                            <div>
-                                <div className="text-sm font-medium">
-                                    {new Date(execution.timestamp).toLocaleString()}
+                {executions.length > 0 ? (
+                    executions.map((execution) => (
+                        <div
+                            key={execution.id}
+                            className="bg-[#1a1b23] p-3 rounded-lg"
+                        >
+                            <div className="flex justify-between items-start mb-2">
+                                <div>
+                                    <div className="text-sm font-medium">
+                                        {new Date(execution.timestamp).toLocaleString()}
+                                    </div>
+                                    <div className="text-xs text-gray-400">
+                                        Duration: {execution.duration}
+                                    </div>
                                 </div>
-                                <div className="text-xs text-gray-400">
-                                    Duration: {execution.duration}
-                                </div>
+                                <span className={`px-2 py-1 rounded-full text-xs ${execution.status === 'success'
+                                        ? 'bg-green-500/20 text-green-400'
+                                        : 'bg-red-500/20 text-red-400'
+                                    }`}>
+                                    {execution.status}
+                                </span>
                             </div>
-                            <span className={`px-2 py-1 rounded-full text-xs ${execution.status === 'success'
-                                ? 'bg-green-500/20 text-green-400'
-                                : 'bg-red-500/20 text-red-400'
-                                }`}>
-                                {execution.status}
-                            </span>
+                            <pre className="text-xs bg-[#2a2b36] p-2 rounded overflow-auto">
+                                {JSON.stringify(execution.details, null, 2)}
+                            </pre>
                         </div>
-                        <pre className="text-xs bg-[#2a2b36] p-2 rounded">
-                            {JSON.stringify(execution.details, null, 2)}
-                        </pre>
-                    </div>
-                ))}
+                    ))
+                ) : (
+                    <div className="text-gray-400 text-sm">No executions yet</div>
+                )}
             </div>
         </div>
     );
 }
 
-export function NodeModal({ node, onClose }: NodeModalProps) {
+export function NodeModal({ node, onClose, executions }: NodeModalProps) {
     const nodeType = node.type || 'unknown';
 
     const renderContent = () => {
@@ -231,8 +257,8 @@ export function NodeModal({ node, onClose }: NodeModalProps) {
                     {/* Node-specific content */}
                     {renderContent()}
 
-                    {/* Execution History */}
-                    <ExecutionHistorySection nodeType={nodeType} />
+                    {/* Updated Execution History */}
+                    <ExecutionHistorySection executions={executions} />
 
                     {/* Actions */}
                     <div className="flex justify-end gap-3">

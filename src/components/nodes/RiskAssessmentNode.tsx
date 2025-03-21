@@ -2,14 +2,14 @@ import { Handle, Position, useNodeConnections, useNodesData, useReactFlow, type 
 import { useEffect, useState } from 'react';
 import { baseNodeStyles } from './CustomNodes';
 
-function calculateVariance(prices) {
-  const closePrices = Object.values(prices).map(priceData => priceData.close);
-  const mean = closePrices.reduce((sum, price) => sum + price, 0) / closePrices.length;
-  const variance = closePrices.reduce((sum, price) => sum + Math.pow(price - mean, 2), 0) / closePrices.length;
+function calculateVariance(prices: any) {
+  const closePrices = Object.values(prices).map((priceData: any) => priceData.close);
+  const mean = closePrices.reduce((sum: number, price: number) => sum + price, 0) / closePrices.length;
+  const variance = closePrices.reduce((sum: number, price: number) => sum + Math.pow(price - mean, 2), 0) / closePrices.length;
   return variance;
 }
 
-export function RiskAssessmentNode({ data }) {
+export function RiskAssessmentNode({ data }: { data: any }) {
   const { updateNodeData } = useReactFlow();
   const connections = useNodeConnections({ handleType: 'target' });
   const nodesData = useNodesData<Node>(connections[0]?.source)?.data || null;
@@ -31,15 +31,15 @@ export function RiskAssessmentNode({ data }) {
         setEmoticon('😐');
       }
     } else {
-        setRating('S&P rating: not available');
-        setBorderColor('border-white-500');
-        setEmoticon('😐');
+      setRating('S&P rating: not available');
+      setBorderColor('border-white-500');
+      setEmoticon('😐');
     }
   }, [nodesData]);
 
   return (
     <div className={`${baseNodeStyles} bg-blue-500/20 border ${borderColor}`}>
-      <Handle type="target" position={Position.Top} style={{ width: '10px', height: '10px' }}/>
+      <Handle type="target" position={Position.Top} style={{ width: '10px', height: '10px' }} />
       <div className="flex items-center gap-2">
         <span>{emoticon}</span>
         {rating}
